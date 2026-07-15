@@ -1,0 +1,26 @@
+{
+  "name": "docker-web",
+  "version": "1.0.0",
+  "description": "Docker + Nginx로 만든 웹 페이지를 AWS Lightsail에 배포하는 실습 프로젝트\r ## 기술 스택\r - Docker\r - Nginx (alpine)\r - HTML/CSS\r - AWS Lightsail (Ubuntu 24.04)\r ## 로컬 실행 방법\r \\`\\`\\`bash\r docker build -t my-web .\r docker run -d -p 8080:80 --name my-web my-web\r \\`\\`\\`\r 브라우저에서 http://localhost:8080 접속\r ## 서버 배포\r AWS Lightsail Ubuntu 24.04 인스턴스에 배포\r ## 작성자\r dab",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/i-dAb-i/docker-web.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/i-dAb-i/docker-web/issues"
+  },
+  "homepage": "https://github.com/i-dAb-i/docker-web#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "openai": "^6.47.0"
+  }
+}
