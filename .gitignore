@@ -9,4 +9,5 @@ desktop.ini
 *.log
 # 환경 변수 (비밀 정보)
 .env
+# node.js
 node_modules/
