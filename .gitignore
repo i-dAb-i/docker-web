@@ -8,4 +8,5 @@ desktop.ini
 # 로그 파일
 *.log
 # 환경 변수 (비밀 정보)
-.env 
+.env
+node_modules/
