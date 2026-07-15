@@ -1,12 +1,31 @@
 import "dotenv/config";
 import express from "express";
 import OpenAI from "openai";
+import fs from "node:fs";
+import path from "node:path";
+import crypto from "node:crypto";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+/*
+ * 로그 저장 경로
+ *
+ * Docker 실행 시 LOG_DIR=/data/logs로 지정하면
+ * 컨테이너를 교체해도 서버의 logs 폴더에 기록을 남길 수 있습니다.
+ */
+const logDirectory =
+  process.env.LOG_DIR || path.join(process.cwd(), "logs");
+
+const accessLogPath = path.join(logDirectory, "access.log");
+const apiLogPath = path.join(logDirectory, "api.log");
+
+fs.mkdirSync(logDirectory, { recursive: true });
+
 if (!process.env.OPENAI_API_KEY) {
-  console.error("오류: .env 파일에 OPENAI_API_KEY가 설정되지 않았습니다.");
+  console.error(
+    "오류: .env 파일에 OPENAI_API_KEY가 설정되지 않았습니다."
+  );
   process.exit(1);
 }
 
@@ -14,8 +33,9 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+app.set("trust proxy", true);
+
 app.use(express.json({ limit: "10kb" }));
-app.use(express.static("public"));
 
 const originalPoem = `동공
 
@@ -27,6 +47,87 @@ const originalPoem = `동공
 온 세상에 커튼이 쳐지면 나를 보아 주려나
 스스로 빛날 수밖에`;
 
+/**
+ * 로그 파일에 JSON 한 줄을 추가합니다.
+ * JSONL 형식이므로 나중에 분석하기 쉽습니다.
+ */
+function appendLog(filePath, data) {
+  const logLine = `${JSON.stringify(data)}\n`;
+
+  fs.appendFile(filePath, logLine, "utf8", error => {
+    if (error) {
+      console.error("로그 저장 오류:", error);
+    }
+  });
+}
+
+/**
+ * IP 주소를 그대로 저장하지 않고 해시값으로 변환합니다.
+ *
+ * 같은 IP는 같은 visitorId가 되므로 방문자 구분은 가능하지만,
+ * 로그 파일만 보고 원래 IP를 바로 알아보기는 어렵습니다.
+ */
+function createVisitorId(req) {
+  const forwardedFor = req.headers["x-forwarded-for"];
+
+  const ip =
+    typeof forwardedFor === "string"
+      ? forwardedFor.split(",")[0].trim()
+      : req.ip || req.socket.remoteAddress || "unknown";
+
+  const salt =
+    process.env.LOG_HASH_SALT || "change-this-log-salt";
+
+  return crypto
+    .createHash("sha256")
+    .update(`${salt}:${ip}`)
+    .digest("hex")
+    .slice(0, 16);
+}
+
+/**
+ * 브라우저가 보낸 User-Agent가 너무 길 경우를 대비해 자릅니다.
+ */
+function getUserAgent(req) {
+  return String(req.headers["user-agent"] || "unknown").slice(
+    0,
+    500
+  );
+}
+
+/**
+ * 사이트 방문 기록
+ *
+ * 이미지, CSS, JS 파일 요청은 제외하고
+ * HTML 페이지 방문만 기록합니다.
+ */
+app.use((req, res, next) => {
+  const isPageVisit =
+    req.method === "GET" &&
+    (req.path === "/" || req.path.endsWith(".html"));
+
+  if (!isPageVisit) {
+    return next();
+  }
+
+  appendLog(accessLogPath, {
+    timestamp: new Date().toISOString(),
+    event: "page_visit",
+    visitorId: createVisitorId(req),
+    method: req.method,
+    path: req.originalUrl,
+    referer: String(req.headers.referer || "").slice(0, 500),
+    userAgent: getUserAgent(req)
+  });
+
+  next();
+});
+
+/*
+ * 정적 파일 제공은 방문 로그 미들웨어 뒤에 위치해야 합니다.
+ */
+app.use(express.static("public"));
+
 app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
@@ -35,16 +136,44 @@ app.get("/api/health", (req, res) => {
 });
 
 app.post("/api/translate", async (req, res) => {
+  const startedAt = Date.now();
+  const visitorId = createVisitorId(req);
+  let persona = "";
+
   try {
-    const persona = String(req.body?.persona ?? "").trim();
+    persona = String(req.body?.persona ?? "").trim();
 
     if (!persona) {
+      appendLog(apiLogPath, {
+        timestamp: new Date().toISOString(),
+        event: "translate_request",
+        visitorId,
+        persona: "",
+        status: 400,
+        success: false,
+        responseTimeMs: Date.now() - startedAt,
+        errorType: "empty_persona",
+        userAgent: getUserAgent(req)
+      });
+
       return res.status(400).json({
         error: "페르소나를 입력해 주세요."
       });
     }
 
     if (persona.length > 100) {
+      appendLog(apiLogPath, {
+        timestamp: new Date().toISOString(),
+        event: "translate_request",
+        visitorId,
+        personaLength: persona.length,
+        status: 400,
+        success: false,
+        responseTimeMs: Date.now() - startedAt,
+        errorType: "persona_too_long",
+        userAgent: getUserAgent(req)
+      });
+
       return res.status(400).json({
         error: "페르소나는 100자 이하로 입력해 주세요."
       });
@@ -89,12 +218,43 @@ ${originalPoem}
       throw new Error("OpenAI API가 빈 응답을 반환했습니다.");
     }
 
+    appendLog(apiLogPath, {
+      timestamp: new Date().toISOString(),
+      event: "translate_request",
+      visitorId,
+      persona,
+      status: 200,
+      success: true,
+      responseTimeMs: Date.now() - startedAt,
+      userAgent: getUserAgent(req)
+    });
+
     return res.json({
       persona,
       translation
     });
   } catch (error) {
     console.error("번역 API 오류:", error);
+
+    const statusCode =
+      error?.status === 429 ? 429 : 500;
+
+    appendLog(apiLogPath, {
+      timestamp: new Date().toISOString(),
+      event: "translate_request",
+      visitorId,
+      persona: persona.slice(0, 100),
+      status: statusCode,
+      success: false,
+      responseTimeMs: Date.now() - startedAt,
+      errorType:
+        error?.status === 401
+          ? "openai_authentication_error"
+          : error?.status === 429
+            ? "openai_rate_limit_error"
+            : "internal_error",
+      userAgent: getUserAgent(req)
+    });
 
     if (error?.status === 401) {
       return res.status(500).json({
@@ -104,7 +264,8 @@ ${originalPoem}
 
     if (error?.status === 429) {
       return res.status(429).json({
-        error: "요청이 너무 많거나 OpenAI API 사용 한도를 초과했습니다."
+        error:
+          "요청이 너무 많거나 OpenAI API 사용 한도를 초과했습니다."
       });
     }
 
@@ -122,4 +283,6 @@ app.use((req, res) => {
 
 app.listen(port, "0.0.0.0", () => {
   console.log(`서버 실행 중: http://localhost:${port}`);
+  console.log(`접속 로그: ${accessLogPath}`);
+  console.log(`API 로그: ${apiLogPath}`);
 });
