@@ -520,10 +520,10 @@
             <button
               type="button"
               class="persona-button"
-              data-persona="흑인 소년"
+              data-persona="스트릿 출신 흑인 소년"
               data-key="blackBoy"
             >
-              스트릿 출신 흑인 소년
+              흑인 소년
             </button>
 
             <button
@@ -532,34 +532,35 @@
               data-persona="수동적인 성격의 밴쿠버 출신 환경운동가"
               data-key="whiteenvironment"
             >
-              수동적인 성격의 밴쿠버 출신 환경운동가
+              밴쿠버 출신 환경운동가
             </button>
 
             <button
               type="button"
               class="persona-button"
-              data-persona="아시아인 노인"
+              data-persona="은퇴한 영문학 교수 노인"
               data-key="asianElder"
             >
-              아시아인 노인
+              영문학 교수
+            </button>
+
+
+            <button
+              type="button"
+              class="persona-button"
+              data-persona="유행에 민감한 자존감 높은 소녀"
+              data-key="queenbee"
+            >
+              자존감 높은 소녀
             </button>
 
             <button
               type="button"
               class="persona-button"
-              data-persona="이주 노동자"
-              data-key="migrantWorker"
+              data-persona="뉴질랜드 마오리 출신 럭비 코치"
+              data-key="rugby"
             >
-              이주 노동자
-            </button>
-
-            <button
-              type="button"
-              class="persona-button"
-              data-persona="전쟁을 경험한 여성"
-              data-key="warSurvivor"
-            >
-              전쟁을 경험한 여성
+              럭비 코치
             </button>
           </div>
 
@@ -635,8 +636,9 @@
     */
     const presetTranslations = {
       blackBoy: `
-    [English]
-      Pupil
+[English]
+
+Pupil
 
 That sky all washed up red—
 what's hangin' there?
@@ -655,7 +657,8 @@ you finally gon' see me.
 Guess I gotta be
 my own light.
 
-    [한국어]
+[한국어]
+
 동공
 
 저 붉게 다 씻겨 물든 하늘—
@@ -678,7 +681,7 @@ my own light.
 내 빛으로
 혼자 빛나는 수밖에.`,
 
-      whiteenvironment: `동공
+      whiteenvironment: `
 [English]
 
 Pupil
@@ -727,28 +730,52 @@ I suppose I’ll just have to shine on my own.
 
       asianElder: `동공
 
-노을이 붉게 번지는 저녁,
-하늘 끝에 걸린 것은
-가느다란 달인가
-길을 잃은 구름 한 조각인가.
 
-네 눈 안에는
-오래전의 계절도 있고
-이름을 잊은 사람들도 있고
-헤아릴 수 없는 별의 강도 흐르는데
-이 늙은 나는 없구나.
+[English]
 
-세상의 등불이 하나씩 꺼지고
-검은 장막이 내려오면
-그제야 나를 기억해 주려나.
+Pupil
 
-기다림이 너무 길어
-나는 남은 빛으로
-내 이름을 밝혀 본다.`,
+Across that sky, where a scarlet hue diffuses with uncommon delicacy,
+one wonders whether the suspended form is a crescent moon
+or merely a fragment of cloud.
+Within your distant, bewildering eyes
+there reside the crescent, the cloud,
+and innumerable unnamed galaxies
+recessed in the profoundest depths of that celestial field.
+And yet,
+I am absent.
+When at last the curtain is drawn over the whole world,
+will you then turn your gaze upon me?
+Until such an hour,
+I am obliged to furnish my own light.
+
+[한국어]
+
+동공
+
+저 하늘 위로,
+선홍의 빛이 보기 드문 섬세함으로 번져 가는군요.
+그곳에 매달린 형상이 초승달인지,
+아니면 한낱 구름 조각인지 문득 생각하게 됩니다.
+그대의 멀고도 혼미한 눈동자 안에는
+초승달도, 구름도,
+저 천공의 가장 깊은 곳에 물러앉은
+무수한 무명의 은하들도 깃들어 있습니다.
+그런데도,
+나는 없군요.
+마침내 온 세상에 장막이 드리워질 때,
+그때는 그대가 나를 바라보아 주겠습니까.
+그 시각이 오기 전까지는,
+부득이 나 스스로 빛을 마련해야 하겠습니다.
+
+`,
 
       queenbee: `
 
-      [English]
+[English]
+
+Pupil
+
 In that sky, all flushed and dramatic,
 is that a crescent moon,
 or just some cloud fragment pretending to be interesting?
@@ -764,28 +791,65 @@ How exhausting,
 having to shine for myself.
 
 [한국어]
+
+동공
+
+저 하늘, 아주 발갛게 달아올라서 난리네.
+저거 초승달이야?
+아니면 관심받고 싶어서 걸려 있는 구름 조각이야?
+네 예쁘고 어지러운 그 눈 안에는
+달도 있고,
+구름도 있고,
+우주 뒤편에 숨은 이름 없는 은하수까지 전부 있다며.
+귀엽네.
+근데 나는 없고.
+온 세상이 커튼이라도 치면
+그제야 알겠지.
+누가 처음부터 빛나고 있었는지.
+피곤해.
+나 혼자 빛나야 한다는 거.
 `,
 
-      warSurvivor: `동공
+      rugby: `동공
 
-하늘이 붉어질 때마다
-나는 그것이 노을인지
-또 다른 불길인지 먼저 생각한다.
+[English]
 
-네 눈 속에는
-가느다란 달도 있고
-흩어진 구름도 있고
-살아남은 별들의 강도 있는데
-그 모든 기억 속에
-나는 없다.
+Pupil
 
-온 세상에 검은 장막이 내려오고
-소리가 모두 멎은 다음에야
-너는 나를 찾아볼까.
+That red sky keeps opening above us,
+and I wonder if what hangs there
+is a young moon
+or a piece of cloud.
+In your eyes, far away and troubled,
+I can see the moon,
+the cloud,
+and all those nameless rivers of stars
+deep in the sky.
+But I cannot see myself there.
+Maybe when the whole world pulls its curtains closed,
+you’ll turn and see me.
+Until then,
+I’ll carry my own light.
 
-어둠이 다시 오는 것을 알기에
-나는 오늘도
-내 안의 불씨를 꺼뜨리지 않는다.`
+[한국어]
+
+동공
+
+붉은 하늘이 우리 머리 위로 계속 열리고 있다.
+저기 걸린 것이
+어린 달인지
+구름 한 조각인지 생각하게 된다.
+멀고도 흔들리는 네 눈 안에서
+나는 달을 보고,
+구름을 보고,
+하늘 깊은 곳을 흐르는
+이름 없는 별들의 강을 본다.
+하지만 그곳에서 나 자신은 보이지 않는다.
+온 세상이 커튼을 닫으면
+너는 돌아서서 나를 보게 될지도 모른다.
+그때까지
+나는 내 빛을 짊어지고 가겠다.
+`
     };
 
     const personaButtons =
